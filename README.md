@@ -2,7 +2,7 @@ This repo contains the trained models and code for the application of a RetinaNe
 
 The code base is from [Keras-RetinaNet](https://github.com/fizyr/keras-retinanet) for the Keras implementation of RetinaNet.
 
-INSTALLATION:
+### INSTALLATION:
 
 1. Clone the repo.
 
@@ -23,6 +23,8 @@ sudo pip2 install --user --upgrade git+https://github.com/broadinstitute/keras-r
 I've currently trained a few models with ResNet 50 and ResNet 101 backbone. I've also tried to crawl through the web to generate more similar bags images. I used the Bags dataset provided by the company. I also tried to crawl through shopping portals for handbag images that I could augment with the original dataset but it skewed with the results.  
 
 I've found that the ResNet 101 model's latest checkpoint file `resnet101_csv_orig_dataset_12.h5` gives the best performance in detection and classification of all the models I've trained so far. 
+
+### RUNNING DEMO:
 
 In order to run the demo of the model over a video of your choice, use:
 
