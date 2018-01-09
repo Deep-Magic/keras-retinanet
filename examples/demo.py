@@ -42,11 +42,11 @@ if not os.path.exists('video_frames'):
     os.makedirs('video_frames')
 i = 0
 
-files = [name for name in os.listdir('/home/mlcvgrp5/keras-retinanet/video_frames/')]
+files = [name for name in os.listdir('video_frames/')]
 if (len(files)!=vid_count):
-    print ('Deleting previously cached video frames and annotations!') 
+    print ('Deleting previously cached video frames and annotations if any!') 
     for f in files:
-        os.remove('/home/mlcvgrp5/keras-retinanet/video_frames/'+f)
+        os.remove('video_frames/'+f)
     if (os.path.exists('annotations_video.csv')):
         os.remove('annotations_video.csv')
     if (os.path.exists('classes_video.csv')):
@@ -67,7 +67,7 @@ if (not os.path.exists('annotations_video.csv')):
             if (not os.path.exists('video_frames/'+str(i)+'.jpg')):
                 image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
                 cv2.imwrite('video_frames/'+str(i)+'.jpg', image)
-            filewriter.writerow(['/home/mlcvgrp5/keras-retinanet/video_frames/'+str(i)+'.jpg', '', '', '', '', ''])      
+            filewriter.writerow([os.getcwd()+'/video_frames/'+str(i)+'.jpg', '', '', '', '', ''])      
             i+=1
 
 if (not os.path.exists('classes_video.csv')):
