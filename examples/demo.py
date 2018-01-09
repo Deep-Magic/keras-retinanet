@@ -27,7 +27,7 @@ classes = ['black_backpack', 'nine_west_bag', 'meixuan_brown_handbag', 'sm_bdrew
 
 # os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 keras.backend.tensorflow_backend.set_session(get_session())
-print ('\n\n............................ INITIAL CONFIGURATIONS COMPLETE ........................\n\n')
+print ('\n\n................... INITIAL CONFIGURATIONS COMPLETE ....................\n\n')
 
 model = keras.models.load_model(sys.argv[1], custom_objects = custom_objects)
 print ('RetinaNet model', sys.argv[1], 'loaded successfully!')
