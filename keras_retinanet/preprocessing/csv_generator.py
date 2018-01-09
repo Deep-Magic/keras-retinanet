@@ -138,14 +138,14 @@ class CSVGenerator(Generator):
         except ValueError as e:
             raise_from(ValueError('invalid CSV annotations file: {}: {}'.format(csv_data_file, e)), None)
         self.image_names = list(self.image_data.keys())
-
+        self.image_names.sort(key = lambda path: int(path.split('/')[-1][:-4]))
         super(CSVGenerator, self).__init__(image_data_generator, **kwargs)
 
     def size(self):
         return len(self.image_names)
 
     def num_classes(self):
-        return max(self.classes.values()) + 1
+        return 12
 
     def name_to_label(self, name):
         return self.classes[name]
