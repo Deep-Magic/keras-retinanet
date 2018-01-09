@@ -38,6 +38,7 @@ from ..callbacks import RedirectModel
 from ..preprocessing.pascal_voc import PascalVocGenerator
 from ..preprocessing.csv_generator import CSVGenerator
 from ..models.resnet import ResNet50RetinaNet
+from ..models.resnet import ResNet101RetinaNet
 from ..utils.keras_version import check_keras_version
 
 
@@ -55,7 +56,7 @@ def create_models(num_classes, weights='imagenet', multi_gpu=0):
     # optionally wrap in a parallel model
     if multi_gpu > 1:
         with tf.device('/cpu:0'):
-            model = ResNet50RetinaNet(image, num_classes=num_classes, weights=weights, nms=False)
+            model = ResNet101RetinaNet(image, num_classes=12, weights=weights, nms=False)
         training_model = multi_gpu_model(model, gpus=multi_gpu)
     else:
         model = ResNet50RetinaNet(image, num_classes=num_classes, weights=weights, nms=False)
@@ -211,7 +212,7 @@ def parse_args(args):
     parser.add_argument('--gpu',           help='Id of the GPU to use (as reported by nvidia-smi).')
     parser.add_argument('--multi-gpu',     help='Number of GPUs to use for parallel processing.', type=int, default=0)
     parser.add_argument('--epochs',        help='Number of epochs to train.', type=int, default=50)
-    parser.add_argument('--steps',         help='Number of steps per epoch.', type=int, default=10000)
+    parser.add_argument('--steps',         help='Number of steps per epoch.', type=int, default=3000)
     parser.add_argument('--snapshot-path', help='Path to store snapshots of models during training (defaults to \'./snapshots\')', default='./snapshots')
     parser.add_argument('--no-snapshots',  help='Disable saving snapshots.', dest='snapshots', action='store_false')
     parser.set_defaults(snapshots=True)
