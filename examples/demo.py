@@ -64,10 +64,10 @@ if (not os.path.exists('annotations_video.csv')):
             if (not ret):
                 break
         
-            if (not os.path.exists('video_frames/'+str(i)+'.jpg')):
+            if (not os.path.exists('video_frames/'+'%05d'%(i)+'.jpg')):
                 image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-                cv2.imwrite('video_frames/'+str(i)+'.jpg', image)
-            filewriter.writerow([os.getcwd()+'/video_frames/'+str(i)+'.jpg', '', '', '', '', ''])      
+                cv2.imwrite('video_frames/'+'%05d'%(i)+'.jpg', image)
+            filewriter.writerow([os.getcwd()+'/video_frames/'+'%05d'%(i)+'.jpg', '', '', '', '', ''])      
             i+=1
 
 if (not os.path.exists('classes_video.csv')):
