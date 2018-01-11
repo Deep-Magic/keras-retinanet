@@ -39,6 +39,7 @@ from ..preprocessing.pascal_voc import PascalVocGenerator
 from ..preprocessing.csv_generator import CSVGenerator
 from ..models.resnet import ResNet50RetinaNet
 from ..models.resnet import ResNet101RetinaNet
+from ..models.resnet import ResNet152RetinaNet
 from ..utils.keras_version import check_keras_version
 
 
@@ -48,7 +49,7 @@ def get_session():
     return tf.Session(config=config)
 
 
-def create_models(num_classes, weights='imagenet', multi_gpu=0):
+def create_models(num_classes, weights='imagenet', multi_gpu=0, resnet=50):
     # create "base" model (no NMS)
     image = keras.layers.Input((None, None, 3))
 
@@ -56,10 +57,24 @@ def create_models(num_classes, weights='imagenet', multi_gpu=0):
     # optionally wrap in a parallel model
     if multi_gpu > 1:
         with tf.device('/cpu:0'):
-            model = ResNet101RetinaNet(image, num_classes=12, weights=weights, nms=False)
+            model = None
+            if (resnet==50):
+                model = ResNet50RetinaNet(image, num_classes=12, weights=weights, nms=False)
+            elif (resnet==101):
+                model = ResNet101RetinaNet(image, num_classes=12, weights=weights, nms=False)
+            else:
+                model = ResNet152RetinaNet(image, num_classes=12, weights=weights, nms=False)
+            
         training_model = multi_gpu_model(model, gpus=multi_gpu)
     else:
-        model = ResNet50RetinaNet(image, num_classes=num_classes, weights=weights, nms=False)
+        model = None
+        if (resnet==50):
+            model = ResNet50RetinaNet(image, num_classes=12, weights=weights, nms=False)
+        elif (resnet==101):
+            model = ResNet101RetinaNet(image, num_classes=12, weights=weights, nms=False)
+        else:
+            model = ResNet152RetinaNet(image, num_classes=12, weights=weights, nms=False)
+        
         training_model = model
 
     # append NMS for prediction only
@@ -153,7 +168,7 @@ def create_generators(args):
             args.annotations,
             args.classes,
             train_image_data_generator,
-            batch_size=args.batch_size
+            batch_size=args.batch_size,
         )
 
         if args.val_annotations:
@@ -208,6 +223,7 @@ def parse_args(args):
     csv_parser.add_argument('--val-annotations', help='Path to CSV file containing annotations for validation (optional).')
 
     parser.add_argument('--weights',       help='Weights to use for initialization (defaults to ImageNet).', default='imagenet')
+    parser.add_argument('--resnet',       help='Number of resnet layers to use (50/101/152) (defaults to 50 and runs only ResNet50 for CPU-training).', default=50)
     parser.add_argument('--batch-size',    help='Size of the batches.', default=1, type=int)
     parser.add_argument('--gpu',           help='Id of the GPU to use (as reported by nvidia-smi).')
     parser.add_argument('--multi-gpu',     help='Number of GPUs to use for parallel processing.', type=int, default=0)
@@ -239,7 +255,7 @@ def main(args=None):
 
     # create the model
     print('Creating model, this may take a second...')
-    model, training_model, prediction_model = create_models(num_classes=train_generator.num_classes(), weights=args.weights, multi_gpu=args.multi_gpu)
+    model, training_model, prediction_model = create_models(num_classes=train_generator.num_classes(), weights=args.weights, multi_gpu=args.multi_gpu, resnet = args.resnet)
 
     # print model summary
     print(model.summary())

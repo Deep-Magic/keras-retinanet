@@ -110,7 +110,7 @@ for index in range(val_generator.size()):
     # process image
     start = time.time()
     _, _, detections = model.predict_on_batch(np.expand_dims(image, axis=0))
-    print("Frame", index, '/', val_generator.size(),  "Time Taken: ", time.time() - start, 'seconds')
+    print("Frame", index+1, '/', val_generator.size(),  "Time Taken: ", time.time() - start, 'seconds')
 
     # compute predicted labels and scores
     predicted_labels = np.argmax(detections[0, :, 4:], axis=1)
