@@ -59,10 +59,13 @@ def create_models(num_classes, weights='imagenet', multi_gpu=0, resnet=50):
         with tf.device('/cpu:0'):
             model = None
             if (resnet==50):
+                print ('Using ResNet50 Backbone')
                 model = ResNet50RetinaNet(image, num_classes=12, weights=weights, nms=False)
             elif (resnet==101):
+                print ('Using ResNet101 Backbone')
                 model = ResNet101RetinaNet(image, num_classes=12, weights=weights, nms=False)
             else:
+                print ('Using ResNet152 Backbone')
                 model = ResNet152RetinaNet(image, num_classes=12, weights=weights, nms=False)
             
         training_model = multi_gpu_model(model, gpus=multi_gpu)
