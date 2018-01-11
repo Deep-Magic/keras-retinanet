@@ -72,10 +72,13 @@ def create_models(num_classes, weights='imagenet', multi_gpu=0, resnet=50):
     else:
         model = None
         if (resnet==50):
+            print ('Using ResNet50 Backbone')
             model = ResNet50RetinaNet(image, num_classes=12, weights=weights, nms=False)
         elif (resnet==101):
+            print ('Using ResNet101 Backbone')
             model = ResNet101RetinaNet(image, num_classes=12, weights=weights, nms=False)
         else:
+            print ('Using ResNet152 Backbone')
             model = ResNet152RetinaNet(image, num_classes=12, weights=weights, nms=False)
         
         training_model = model
@@ -226,7 +229,7 @@ def parse_args(args):
     csv_parser.add_argument('--val-annotations', help='Path to CSV file containing annotations for validation (optional).')
 
     parser.add_argument('--weights',       help='Weights to use for initialization (defaults to ImageNet).', default='imagenet')
-    parser.add_argument('--resnet',       help='Number of resnet layers to use (50/101/152) (defaults to 50 and runs only ResNet50 for CPU-training).', default=50)
+    parser.add_argument('--resnet',       help='Number of resnet layers to use (50/101/152) (defaults to 50).', default=50)
     parser.add_argument('--batch-size',    help='Size of the batches.', default=1, type=int)
     parser.add_argument('--gpu',           help='Id of the GPU to use (as reported by nvidia-smi).')
     parser.add_argument('--multi-gpu',     help='Number of GPUs to use for parallel processing.', type=int, default=0)
@@ -261,7 +264,7 @@ def main(args=None):
     model, training_model, prediction_model = create_models(num_classes=train_generator.num_classes(), weights=args.weights, multi_gpu=args.multi_gpu, resnet = args.resnet)
 
     # print model summary
-    print(model.summary())
+    #print(model.summary())
 
     # create the callbacks
     callbacks = create_callbacks(
