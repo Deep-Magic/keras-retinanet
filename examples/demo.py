@@ -15,6 +15,7 @@ import numpy as np
 import csv
 import time
 import sys
+import argparse
 
 import tensorflow as tf
 
@@ -23,16 +24,22 @@ def get_session():
     config.gpu_options.allow_growth = True
     return tf.Session(config=config)
 
+parser = argparse.ArgumentParser(description='Deep Magic Demo Interface.')
+parser.add_argument('--checkpoint', default=None, help='Path to the saved trained checkpoint file (usually created in keras_retinanet/snapshots))', required=True)
+parser.add_argument('--video', default=None, help='Path to the video to be detected)', required=True)
+
+args = parser.parse_args()
+
 classes = ['black_backpack', 'nine_west_bag', 'meixuan_brown_handbag', 'sm_bdrew_grey_handbag', 'wine_red_handbag', 'sm_bclarre_blush_crossbody', 'mk_brown_wrislet', 'black_plain_bag', 'lmk_brown_messenger_bag', 'sm_peach_backpack', 'black_ameligalanti', 'white_bag']
 
 # os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 keras.backend.tensorflow_backend.set_session(get_session())
 print ('\n\n................... INITIAL CONFIGURATIONS COMPLETE ....................\n\n')
 
-model = keras.models.load_model(sys.argv[1], custom_objects = custom_objects)
-print ('RetinaNet model', sys.argv[1], 'loaded successfully!')
+model = keras.models.load_model(args.checkpoint, custom_objects = custom_objects)
+print ('RetinaNet model', args.checkpoint, 'loaded successfully!')
 
-cap = cv2.VideoCapture(sys.argv[2])
+cap = cv2.VideoCapture(args.video)
 
 cv2.namedWindow('Detection Results')
 

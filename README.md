@@ -31,7 +31,7 @@ In order to run the demo of the model over a video of your choice, use:
 ```shell
 
 cd keras-retinanet/
-python examples/demo.py keras_retinanet/snapshots/resnet101_csv_orig_dataset_12.h5 <PATH_TO_VIDEO_FILE>
+python examples/demo.py --checkpoint keras_retinanet/snapshots/resnet101_csv_orig_dataset_12.h5 --video <PATH_TO_VIDEO_FILE>
 ``` 
 
 ### TRAINING ON BAGS DATASET IN PASCAL VOC FORMAT:
@@ -55,4 +55,4 @@ where <BATCH_SIZE> is an integer (around 10 for 3 8GB GPU machine), <NUM_GPUs> i
 
 ### TRAINING ON BAGS DATASET IMAGES:
 
-Refer `keras_retinanet/preprocessing/create_csv_dataset` for instructions on how to convert custom dataset to train.
+Refer `keras_retinanet/preprocessing/create_csv_dataset` or look into keras-retinanet ([https://github.com/fizyr/keras-retinanet](https://github.com/fizyr/keras-retinanet)) for instructions on how to convert custom dataset to train.
