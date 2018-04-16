@@ -1,0 +1,2 @@
+python examples/return_objects.py ../github/resnet151-LRfliponly.h5 ../Dataset/COCO-Style-Dataset-Generator-GUI/classes/bags.txt
+
