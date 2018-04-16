@@ -1,12 +1,9 @@
 """
 Copyright 2017-2018 Fizyr (https://fizyr.com)
-
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
-
     http://www.apache.org/licenses/LICENSE-2.0
-
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -53,7 +50,6 @@ def preprocess_image(x):
 
 def adjust_transform_for_image(transform, image, relative_translation):
     """ Adjust a transformation for a specific image.
-
     The translation of the matrix will be scaled with the size of the image.
     The linear part of the transformation will adjusted so that the origin of the transformation will be at the center of the image.
     """
@@ -73,7 +69,6 @@ def adjust_transform_for_image(transform, image, relative_translation):
 
 class TransformParameters:
     """ Struct holding parameters determining how to apply a transformation to an image.
-
     # Arguments
         fill_mode:             One of: 'constant', 'nearest', 'reflect', 'wrap'
         interpolation:         One of: 'nearest', 'linear', 'cubic', 'area', 'lanczos4'
@@ -132,12 +127,9 @@ class TransformParameters:
 def apply_transform(matrix, image, params):
     """
     Apply a transformation to an image.
-
     The origin of transformation is at the top left corner of the image.
-
     The matrix is interpreted such that a point (x, y) on the original image is moved to transform * (x, y) in the generated image.
     Mathematically speaking, that means that the matrix is a transformation from the transformed image space to the original image space.
-
     Parameters:
       matrix: A homogeneous 3 by 3 matrix holding representing the transformation to apply.
       image:  The image to transform.

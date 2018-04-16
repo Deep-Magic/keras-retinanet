@@ -22,8 +22,7 @@ import warnings
 
 import keras
 
-from ..utils.image import preprocess_image, resize_image
-from ..utils.transform import random_transform
+from ..utils.image import preprocess_image, resize_image, random_transform
 from ..utils.anchors import anchor_targets_bbox
 
 
