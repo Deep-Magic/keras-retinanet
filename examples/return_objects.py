@@ -92,13 +92,17 @@ def return_objects(model_path, class_path, image_path, iou_threshold=0.25, model
         plabels.append(label)
         pscores.append(score)
     
-    rboxes, rscores, rlabels, inter = [], [], [], False
+    rboxes, rscores, rlabels, ignore, inter = [], [], [], [], False
     for i in range(len(pboxes)):
+        if i in ignore:
+            continue
         for j in range(i+1, len(pboxes)):
             if intersects(pboxes[i], pboxes[j]):
                 iou = area(pboxes[i], pboxes[j])/float(union(pboxes[i], pboxes[j])-area(pboxes[i], pboxes[j]))
                 if pscores[i]<pscores[j] and iou>iou_threshold:
                     inter = True
+                elif pscores[i]>pscores[j] and iou>iou_threshold:
+                    ignore.append(j)
         
         if not inter:                
             rboxes.append(pboxes[i])
@@ -117,7 +121,7 @@ if __name__=='__main__':
     keras.backend.tensorflow_backend.set_session(get_session())
     
     demo_img_path = './examples/test.jpg'
-    iou_threshold = 0.01
+    iou_threshold = 0.25
     
     draw = read_image_bgr(demo_img_path)
     draw = cv2.cvtColor(draw, cv2.COLOR_BGR2RGB)
