@@ -42,8 +42,19 @@ def draw_caption(image, box, caption):
         caption : String containing the text to draw.
     """
     b = np.array(box).astype(int)
-    cv2.putText(image, caption, (b[0], b[1] - 10), cv2.FONT_HERSHEY_PLAIN, 1, (0, 0, 0), 2)
-    cv2.putText(image, caption, (b[0], b[1] - 10), cv2.FONT_HERSHEY_PLAIN, 1, (255, 255, 255), 1)
+    
+    dy = 30
+    x1, y1, x2, y2 = box
+    
+    for i, line in enumerate(caption.split('\n')):
+        if line != '':
+            size, base = cv2.getTextSize(line, cv2.FONT_HERSHEY_COMPLEX_SMALL, 1, 1)
+            rand_c = 0 if i==0 else np.random.randint(1, 5)
+            image = cv2.rectangle(image, (x1+20, y1+20-size[1]+dy*i), (x1+20+size[0], y1+20+base+dy*i), rand_c, -1)
+            cv2.putText(image,line, (x1+20,y1+20+dy*i), cv2.FONT_HERSHEY_COMPLEX_SMALL, 1, (255,255,255))
+    
+    #cv2.putText(image, caption, (b[0], b[1] - 10), cv2.FONT_HERSHEY_PLAIN, 1, (0, 0, 0), 3)
+    #cv2.putText(image, caption, (b[0], b[1] - 10), cv2.FONT_HERSHEY_PLAIN, 1, (255, 255, 255), 1)
 
 
 def draw_boxes(image, boxes, color, thickness=2):

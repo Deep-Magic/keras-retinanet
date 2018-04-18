@@ -46,16 +46,16 @@ def return_objects(model_path, class_path, image_path, iou_threshold=0.25, model
 	    labels_to_names[i] = c
         
     # ## Load RetinaNet model
-    if 'resnet' in sys.argv[1]:
+    if 'resnet' in model_path:
         from keras_retinanet.models.resnet import resnet_retinanet as retinanet, custom_objects, download_imagenet
-    elif 'mobilenet' in sys.argv[1]:
+    elif 'mobilenet' in model_path:
         from keras_retinanet.models.mobilenet import mobilenet_retinanet as retinanet, custom_objects, download_imagenet
-    elif 'vgg' in sys.argv[1]:
+    elif 'vgg' in model_path:
         from keras_retinanet.models.vgg import vgg_retinanet as retinanet, custom_objects, download_imagenet
-    elif 'densenet' in sys.argv[1]:
+    elif 'densenet' in model_path:
         from keras_retinanet.models.densenet import densenet_retinanet as retinanet, custom_objects, download_imagenet
     else:
-        raise NotImplementedError('Backbone \'{}\' not implemented.'.format(sys.argv[1]))
+        raise NotImplementedError('Backbone \'{}\' not implemented.'.format(model_path))
 
     _, _, model = create_models(
         backbone_retinanet=retinanet,
@@ -89,7 +89,7 @@ def return_objects(model_path, class_path, image_path, iou_threshold=0.25, model
         if score<0.5:
             continue
         pboxes.append(boxes[0, idx, :].astype(int))
-        plabels.append(label)
+        plabels.append([label])
         pscores.append(score)
     
     rboxes, rscores, rlabels, ignore, inter = [], [], [], [], False
@@ -103,6 +103,7 @@ def return_objects(model_path, class_path, image_path, iou_threshold=0.25, model
                     inter = True
                 elif pscores[i]>pscores[j] and iou>iou_threshold:
                     ignore.append(j)
+                    plabels[i].append(plabels[j][0])
         
         if not inter:                
             rboxes.append(pboxes[i])
@@ -116,27 +117,37 @@ def return_objects(model_path, class_path, image_path, iou_threshold=0.25, model
 if __name__=='__main__':
     # use this environment flag to change which GPU to use
     #os.environ["CUDA_VISIBLE_DEVICES"] = "1"
-
+    
+    ap = argparse.ArgumentParser()
+    ap.add_argument('-i', '--image', help='Path to demo image file', required=True)
+    ap.add_argument('-m', '--model', help='Path to model', required=True)
+    ap.add_argument('-c', '--classf', help='Path to classfile', required=True)
+    ap.add_argument('-r', '--iou', help='IOU Threshold', required=True)
+    args = ap.parse_args()
     # set the modified tf session as backend in keras
     keras.backend.tensorflow_backend.set_session(get_session())
     
-    demo_img_path = './examples/test.jpg'
-    iou_threshold = 0.25
+    demo_img_path = args.image
+    iou_threshold = float(args.iou)
     
     draw = read_image_bgr(demo_img_path)
     draw = cv2.cvtColor(draw, cv2.COLOR_BGR2RGB)
     
-    predicted_labels, scores, boxes, labels_to_names = return_objects(sys.argv[1], sys.argv[2], demo_img_path, iou_threshold)   
+    predicted_labels, scores, boxes, labels_to_names = return_objects(args.model, args.classf, demo_img_path, iou_threshold)   
         
     # visualize detections
-    for idx, (label, score) in enumerate(zip(predicted_labels, scores)):
-            
-        color = label_color(label)
+    for idx, (labels, score) in enumerate(zip(predicted_labels, scores)):
+        
+        color = label_color(labels[0])
 
         b = boxes[idx].astype(int)
         draw_box(draw, b, color=color)
         
-        caption = "{} {:.3f}".format(labels_to_names[label], score)
+        caption = "{} {:.3f}".format(labels_to_names[labels[0]], score)
+        if len(labels)>1:
+            for lid in labels[1:]:
+                caption+='\n'+labels_to_names[lid]
+            
         draw_caption(draw, b, caption)
         
     plt.figure(figsize=(15, 15))
