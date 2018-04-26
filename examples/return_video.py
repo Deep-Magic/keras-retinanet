@@ -15,6 +15,8 @@ import os
 import numpy as np
 import time
 import argparse
+import glob
+import imutils
 
 # set tf backend to allow memory to grow, instead of claiming everything
 import tensorflow as tf
@@ -63,12 +65,10 @@ def return_objects(model_path, class_path, image_path, iou_threshold=0.25, model
         num_classes=len(classes),
         weights=model_path,
         multi_gpu=False,
-        freeze_backbone=False,
-        convert=True
+        freeze_backbone=False
     )
 
     image = read_image_bgr(image_path)
-
     # preprocess image for network
     image = preprocess_image(image)
     image, scale = resize_image(image)
@@ -120,39 +120,65 @@ if __name__=='__main__':
     #os.environ["CUDA_VISIBLE_DEVICES"] = "1"
     
     ap = argparse.ArgumentParser()
-    ap.add_argument('-i', '--image', help='Path to demo image file', required=True)
+    ap.add_argument('-v', '--video', help='Path to demo video file', required=True)
     ap.add_argument('-m', '--model', help='Path to model', required=True)
     ap.add_argument('-c', '--classf', help='Path to classfile', required=True)
-    ap.add_argument('-r', '--iou', help='IOU Threshold', required=True)
+    ap.add_argument('-r', '--rotation', help='Angle of rotation of video', required=True)
+    ap.add_argument('-i', '--iou', help='IOU Threshold', required=True)
     args = ap.parse_args()
     # set the modified tf session as backend in keras
     keras.backend.tensorflow_backend.set_session(get_session())
     
-    demo_img_path = args.image
+    cap = cv2.VideoCapture(args.video)
+    if os.listdir(os.path.basename(args.video))==[] or int(cap.get(cv2.CAP_PROP_FRAME_COUNT)) != len(glob.glob(os.path.join(os.path.basename(args.video), '*'))):
+        if not os.path.isdir(os.path.basename(args.video)):
+            os.mkdir(os.path.basename(args.video))
+        if (cap.isOpened()== False): 
+            print("Error opening video stream or file")
+        f_id=0
+        if int(cap.get(cv2.CAP_PROP_FRAME_COUNT)) == len(glob.glob(os.path.join(os.path.basename(args.video), '*'))):
+            print ("Using cached video frames!!")
+        else:
+            print ("Creating frame image files!!")
+            # Read until video is completed
+            while(cap.isOpened()):
+                # Capture frame-by-frame
+                ret, frame = cap.read()
+                if ret == True:
+                    frame = imutils.rotate_bound(frame, int(args.rotation))
+                    cv2.imwrite(os.path.join(os.path.basename(args.video), str(f_id)+'.jpg'), frame)
+                    f_id = f_id+1
+                else: 
+                    break                
+        cap.release()
+        
+    img_paths = glob.glob(os.path.join(os.path.basename(args.video), '*'))   
+    print(img_paths)
     iou_threshold = float(args.iou)
     
-    draw = read_image_bgr(demo_img_path)
-    draw = cv2.cvtColor(draw, cv2.COLOR_BGR2RGB)
-    
-    predicted_labels, scores, boxes, labels_to_names = return_objects(args.model, args.classf, demo_img_path, iou_threshold)   
+    for demo_img_path in img_paths:
+        draw = read_image_bgr(demo_img_path)
+        draw = cv2.cvtColor(draw, cv2.COLOR_BGR2RGB)
         
-    # visualize detections
-    for idx, (labels, score) in enumerate(zip(predicted_labels, scores)):
-        
-        color = label_color(labels[0])
-
-        b = boxes[idx].astype(int)
-        draw_box(draw, b, color=color)
-        
-        caption = "{} {:.3f}".format(labels_to_names[labels[0]], score)
-        if len(labels)>1:
-            for lid in labels[1:]:
-                caption+='\n'+labels_to_names[lid]
+        predicted_labels, scores, boxes, labels_to_names = return_objects(args.model, args.classf, demo_img_path, iou_threshold)   
             
-        draw_caption(draw, b, caption)
-        
-    plt.figure(figsize=(15, 15))
-    plt.axis('off')
-    plt.imshow(draw)
-    plt.show()
+        # visualize detections
+        for idx, (labels, score) in enumerate(zip(predicted_labels, scores)):
+            
+            color = label_color(labels[0])
 
+            b = boxes[idx].astype(int)
+            draw_box(draw, b, color=color)
+            
+            caption = "{} {:.3f}".format(labels_to_names[labels[0]], score)
+            if len(labels)>1:
+                for lid in labels[1:]:
+                    caption+='\n'+labels_to_names[lid]
+                
+            draw_caption(draw, b, caption)
+            
+        cv2.imshow('Video Detections - Retinanet', draw)
+        cv2.waitKey(1)
+        
+    # Closes all the frames
+    cv2.destroyAllWindows()
