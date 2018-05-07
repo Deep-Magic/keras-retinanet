@@ -63,8 +63,7 @@ def return_objects(model_path, class_path, image_path, iou_threshold=0.25, model
         num_classes=len(classes),
         weights=model_path,
         multi_gpu=False,
-        freeze_backbone=False,
-        convert=True
+        freeze_backbone=False
     )
 
     image = read_image_bgr(image_path)
